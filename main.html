@@ -1,27 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>HTML Video Player</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+<h3 id="h">Please click on the identical tiles to verify that you are not a robot.</h3>
+<div id="image-container">
+  <!-- images will be rendered here -->
+</div>
+<button id="reset" style="display: none;">Reset</button>
+<button id="verify" style="display: none;">Verify</button>
+<p id="para" style="display: none;"></p>
 
-   <div class="player">
-     <video class="player__video viewer" src="download.mp4"></video>
+<script>
+  let images = [];
+  let clickedImages = [];
+  let repeatedImageIndex;
 
-     <div class="player__controls">
-       <div class="progress">
-        <div class="progress__filled"></div>
-       </div>
-       <button class="player__button toggle" title="Toggle Play">►</button>
-       <input type="range" name="volume" class="player__slider" min="0" max="1" step="0.05" value="1">
-       <input type="range" name="playbackRate" class="player__slider" min="0.5" max="2" step="0.1" value="1">
-       <button data-skip="-10" class="player__button">« 10s</button>
-       <button data-skip="25" class="player__button">25s »</button>
-     </div>
-   </div>
+  // generate 6 images, 5 unique and 1 repeated
+  for (let i = 0; i < 6; i++) {
+    let img = document.createElement("img");
+    img.className = `img${i % 5 + 1}`;
+    images.push(img);
+    document.getElementById("image-container").appendChild(img);
+  }
 
-  <script src="./scripts.js"></script>
-</body>
-</html>
+  // randomly arrange images
+  images.forEach((img) => {
+    img.style.order = Math.floor(Math.random() * 6);
+  });
+
+  // choose a random image to repeat
+  repeatedImageIndex = Math.floor(Math.random() * 5);
+  images[5].className = `img${repeatedImageIndex + 1}`;
+
+  // add event listeners to images
+  images.forEach((img) => {
+    img.addEventListener("click", (e) => {
+      if (clickedImages.length < 2) {
+        clickedImages.push(img.className);
+        document.getElementById("reset").style.display = "block";
+        if (clickedImages.length === 2) {
+          document.getElementById("verify").style.display = "block";
+        }
+      }
+    });
+  });
+
+  // add event listener to reset button
+  document.getElementById("reset").addEventListener("click", () => {
+    clickedImages = [];
+    document.getElementById("reset").style.display = "none";
+    document.getElementById("verify").style.display = "none";
+    document.getElementById("para").style.display = "none";
+  });
+
+  // add event listener to verify button
+  document.getElementById("verify").addEventListener("click", () => {
+    if (clickedImages[0] === clickedImages[1]) {
+      document.getElementById("para").innerHTML = "You are a human. Congratulations!";
+    } else {
+      document.getElementById("para").innerHTML = "We can't verify you as a human. You selected the non-identical tiles.";
+    }
+    document.getElementById("para").style.display = "block";
+    document.getElementById("verify").style.display = "none";
+  });
+</script>
